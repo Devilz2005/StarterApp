@@ -2,9 +2,9 @@ using StarterApp.ViewModels;
 
 namespace StarterApp.Views;
 
-public partial class TempPage : ContentPage
+public partial class UpdateItemPage : ContentPage
 {
-    public TempPage(TempViewModel viewModel)
+    public UpdateItemPage(UpdateItemViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;

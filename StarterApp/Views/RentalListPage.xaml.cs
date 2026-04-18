@@ -2,9 +2,9 @@ using StarterApp.ViewModels;
 
 namespace StarterApp.Views;
 
-public partial class TempPage : ContentPage
+public partial class RentalListPage : ContentPage
 {
-    public TempPage(TempViewModel viewModel)
+    public RentalListPage(RentalListViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;

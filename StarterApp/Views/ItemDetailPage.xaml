@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StarterApp.Views.ItemDetailPage"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Loading state -->
+            <Label Text="Loading item details..."
+                   IsVisible="{Binding IsBusy}" />
+
+            <!-- Error message -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   IsVisible="{Binding HasError}" />
+
+            <!-- Title -->
+            <Label Text="{Binding SelectedItem.Title}"
+                   FontSize="28"
+                   FontAttributes="Bold" />
+
+            <!-- Description -->
+            <Label Text="{Binding SelectedItem.Description}"
+                   FontSize="16" />
+
+            <!-- Daily Rate -->
+            <Label Text="{Binding SelectedItem.DailyRate, StringFormat='£{0}/day'}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="Green" />
+
+            <!-- Category -->
+            <Label Text="{Binding SelectedItem.Category, StringFormat='Category: {0}'}"
+                   FontSize="14" />
+
+            <!-- Location -->
+            <Label Text="{Binding SelectedItem.Location, StringFormat='Location: {0}'}"
+                   FontSize="14" />
+
+            <!-- Owner -->
+            <Label Text="{Binding SelectedItem.OwnerName, StringFormat='Owner: {0}'}"
+                   FontSize="14" />
+
+            <!-- Update button -->
+            <Button Text="Update Item"
+                    Command="{Binding NavigateToUpdateItemCommand}" />
+
+              <!-- request rental button -->
+              <Button Text="Request Rental"
+        Command="{Binding RequestRentalCommand}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
