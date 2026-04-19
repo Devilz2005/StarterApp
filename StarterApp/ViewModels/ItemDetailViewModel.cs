@@ -1,13 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarterApp.Services;
+using StarterApp.Repositories;
 
 namespace StarterApp.ViewModels;
 
 [QueryProperty(nameof(ItemId), "itemId")]
 public partial class ItemDetailViewModel : BaseViewModel
 {
-    private readonly IItemService _itemService;
+    private readonly IItemRepository _repository;
     private readonly INavigationService _navigationService;
 
     // Stores the ID passed through navigation
@@ -23,9 +24,9 @@ public partial class ItemDetailViewModel : BaseViewModel
         Title = "Item Details";
     }
 
-    public ItemDetailViewModel(IItemService itemService, INavigationService navigationService)
+    public ItemDetailViewModel(IItemRepository repository, INavigationService navigationService)
     {
-        _itemService = itemService;
+        _repository = repository;
         _navigationService = navigationService;
         Title = "Item Details";
     }
@@ -56,7 +57,7 @@ public partial class ItemDetailViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var item = await _itemService.GetItemByIdAsync(id);
+            var item = await _repository.GetByIdAsync(id);
 
             if (item == null)
             {
@@ -90,24 +91,24 @@ public partial class ItemDetailViewModel : BaseViewModel
     }
 
     // Sends a rental request for this item
-[RelayCommand]
-private async Task RequestRentalAsync()
-{
-    if (SelectedItem == null)
-        return;
-
-    var result = await _itemService.RequestRentalAsync(SelectedItem.Id);
-
-    if (result.IsSuccess)
+    [RelayCommand]
+    private async Task RequestRentalAsync()
     {
-        await Application.Current.MainPage.DisplayAlert(
-            "Success",
-            "Rental request sent.",
-            "OK");
+        if (SelectedItem == null)
+            return;
+
+        var result = await _repository.RequestRentalAsync(SelectedItem.Id);
+
+        if (result.IsSuccess)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Success",
+                "Rental request sent.",
+                "OK");
+        }
+        else
+        {
+            SetError(result.Message);
+        }
     }
-    else
-    {
-        SetError(result.Message);
-    }
-}
 }

@@ -4,10 +4,16 @@
              x:Class="StarterApp.Views.RentalListPage"
              Title="Rental Requests">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
+    <Grid Padding="20" RowSpacing="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
         <!-- Buttons to load either incoming or outgoing requests -->
-        <HorizontalStackLayout Spacing="10">
+        <HorizontalStackLayout Grid.Row="0" Spacing="10">
             <Button Text="Incoming"
                     Command="{Binding LoadIncomingRentalsCommand}"
                     HorizontalOptions="FillAndExpand" />
@@ -18,17 +24,21 @@
         </HorizontalStackLayout>
 
         <!-- Loading message -->
-        <Label Text="Loading rental requests..."
+        <Label Grid.Row="1"
+               Text="Loading rental requests..."
                IsVisible="{Binding IsBusy}" />
 
         <!-- Error message -->
-        <Label Text="{Binding ErrorMessage}"
+        <Label Grid.Row="2"
+               Text="{Binding ErrorMessage}"
                TextColor="Red"
                IsVisible="{Binding HasError}" />
 
         <!-- Rental request list -->
-        <CollectionView ItemsSource="{Binding Rentals}"
-                        SelectionMode="None">
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Rentals}"
+                        SelectionMode="None"
+                        VerticalOptions="FillAndExpand">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame Padding="12"
@@ -63,6 +73,5 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
-    </VerticalStackLayout>
+    </Grid>
 </ContentPage>

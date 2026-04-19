@@ -4,6 +4,7 @@ using StarterApp.Database.Data;
 using StarterApp.Views;
 using System.Diagnostics;
 using StarterApp.Services;
+using StarterApp.Repositories;
 
 namespace StarterApp;
 
@@ -40,6 +41,10 @@ public static class MauiProgram
             // Register the API-based item service so ViewModels can request
             // item data without needing to know how the API calls work.
             builder.Services.AddSingleton<IItemService, ApiItemService>();
+
+            // Register the repository layer so ViewModels can depend on
+            // repository abstractions instead of calling services directly.
+            builder.Services.AddSingleton<IItemRepository, ApiItemRepository>();
         }
         else
         {

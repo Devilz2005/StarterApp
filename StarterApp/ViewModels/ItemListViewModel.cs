@@ -4,14 +4,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarterApp.Services;
+using StarterApp.Repositories;
 using System.Collections.ObjectModel;
 
 namespace StarterApp.ViewModels;
 
 public partial class ItemListViewModel : ObservableObject
 {
-    // Item service for communicating with the API
-    private readonly IItemService _itemService;
+    // Item repository for communicating with the API
+    private readonly IItemRepository _repository;
 
     // Collection of items to display in the UI
     // ObservableCollection automatically updates the UI when changed
@@ -29,16 +30,16 @@ public partial class ItemListViewModel : ObservableObject
     private string errorMessage = string.Empty;
 
     // Initializes a new instance of the ItemListViewModel class
-    // itemService is used to fetch data from the API
-    public ItemListViewModel(IItemService itemService)
+    // repository is used to fetch data from the API
+    public ItemListViewModel(IItemRepository repository)
     {
-        _itemService = itemService;
+        _repository = repository;
 
-        // Service is injected so the ViewModel doesn't handle HTTP directly
+        // Repository is injected so the ViewModel doesn't handle HTTP directly
     }
 
     // Loads all items from the API
-    // Calls the item service and updates the Items collection
+    // Calls the repository and updates the Items collection
     [RelayCommand]
     private async Task LoadItemsAsync()
     {
@@ -53,8 +54,8 @@ public partial class ItemListViewModel : ObservableObject
             // Clear any previous error before starting a new request
             ErrorMessage = string.Empty;
 
-            // Call the service to get the latest list of items
-            var result = await _itemService.GetItemsAsync();
+            // Call the repository to get the latest list of items
+            var result = await _repository.GetAllAsync();
 
             // Clear existing items so the list doesn't duplicate
             Items.Clear();

@@ -1,13 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarterApp.Services;
+using StarterApp.Repositories;
 using System.Collections.ObjectModel;
 
 namespace StarterApp.ViewModels;
 
 public partial class RentalListViewModel : BaseViewModel
 {
-    private readonly IItemService _itemService;
+    private readonly IItemRepository _repository;
 
     // Stores the rental requests shown on the page
     [ObservableProperty]
@@ -18,9 +19,9 @@ public partial class RentalListViewModel : BaseViewModel
         Title = "Rental Requests";
     }
 
-    public RentalListViewModel(IItemService itemService)
+    public RentalListViewModel(IItemRepository repository)
     {
-        _itemService = itemService;
+        _repository = repository;
         Title = "Rental Requests";
     }
 
@@ -35,7 +36,7 @@ public partial class RentalListViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var result = await _itemService.GetIncomingRentalsAsync();
+            var result = await _repository.GetIncomingRentalsAsync();
 
             Rentals.Clear();
 
@@ -65,7 +66,7 @@ public partial class RentalListViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var result = await _itemService.GetOutgoingRentalsAsync();
+            var result = await _repository.GetOutgoingRentalsAsync();
 
             Rentals.Clear();
 
