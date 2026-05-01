@@ -4,43 +4,52 @@
              x:Class="StarterApp.Views.RentalListPage"
              Title="Rental Requests">
 
+    <!-- Grid layout used so the list can scroll properly -->
     <Grid Padding="20" RowSpacing="15">
         <Grid.RowDefinitions>
+            <!-- Buttons row -->
             <RowDefinition Height="Auto" />
+            <!-- Loading text -->
             <RowDefinition Height="Auto" />
+            <!-- Error message -->
             <RowDefinition Height="Auto" />
+            <!-- Rental list takes remaining space -->
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Buttons to load either incoming or outgoing requests -->
+        <!-- Buttons to switch between incoming and outgoing rental requests -->
         <HorizontalStackLayout Grid.Row="0" Spacing="10">
+            <!-- Loads rental requests made by other users for this user's items -->
             <Button Text="Incoming"
                     Command="{Binding LoadIncomingRentalsCommand}"
                     HorizontalOptions="FillAndExpand" />
 
+            <!-- Loads rental requests made by this user -->
             <Button Text="Outgoing"
                     Command="{Binding LoadOutgoingRentalsCommand}"
                     HorizontalOptions="FillAndExpand" />
         </HorizontalStackLayout>
 
-        <!-- Loading message -->
+        <!-- Shows when rental data is currently loading -->
         <Label Grid.Row="1"
                Text="Loading rental requests..."
                IsVisible="{Binding IsBusy}" />
 
-        <!-- Error message -->
+        <!-- Displays any error message from the ViewModel -->
         <Label Grid.Row="2"
                Text="{Binding ErrorMessage}"
                TextColor="Red"
                IsVisible="{Binding HasError}" />
 
-        <!-- Rental request list -->
+        <!-- Displays the list of rental requests -->
         <CollectionView Grid.Row="3"
                         ItemsSource="{Binding Rentals}"
                         SelectionMode="None"
                         VerticalOptions="FillAndExpand">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
+
+                    <!-- Card layout for each rental request -->
                     <Frame Padding="12"
                            Margin="0,0,0,12"
                            BorderColor="LightGray"
@@ -48,22 +57,28 @@
                            HasShadow="False">
                         <VerticalStackLayout Spacing="6">
 
+                            <!-- Title of the item being rented -->
                             <Label Text="{Binding ItemTitle}"
                                    FontAttributes="Bold"
                                    FontSize="18" />
 
+                            <!-- Current status of the rental (e.g. pending, approved) -->
                             <Label Text="{Binding Status, StringFormat='Status: {0}'}"
                                    FontSize="14" />
 
+                            <!-- Start date of the rental -->
                             <Label Text="{Binding StartDate, StringFormat='Start: {0:dd/MM/yyyy}'}"
                                    FontSize="14" />
 
+                            <!-- End date of the rental -->
                             <Label Text="{Binding EndDate, StringFormat='End: {0:dd/MM/yyyy}'}"
                                    FontSize="14" />
 
+                            <!-- Name of the item owner -->
                             <Label Text="{Binding OwnerName, StringFormat='Owner: {0}'}"
                                    FontSize="14" />
 
+                            <!-- Total price for the rental period -->
                             <Label Text="{Binding TotalPrice, StringFormat='Total Price: £{0}'}"
                                    FontSize="14"
                                    FontAttributes="Bold" />

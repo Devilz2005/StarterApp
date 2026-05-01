@@ -8,10 +8,12 @@ using StarterApp.Repositories;
 
 namespace StarterApp;
 
+// Main setup class for the MAUI app
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        // Creates the main app builder
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -31,11 +33,16 @@ public static class MauiProgram
 
         if (useSharedApi)
         {
+            // Sets up the shared API address
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://set09102-api.b-davison.workers.dev/")
             };
+
+            // Registers the HttpClient so API services can use it
             builder.Services.AddSingleton(httpClient);
+
+            // Registers API authentication instead of local authentication
             builder.Services.AddSingleton<IAuthenticationService, ApiAuthenticationService>();
 
             // Register the API-based item service so ViewModels can request
@@ -48,25 +55,32 @@ public static class MauiProgram
         }
         else
         {
+            // Registers the local database and local authentication service
             builder.Services.AddDbContext<AppDbContext>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         }
 
+        // Registers navigation service used by ViewModels
         builder.Services.AddSingleton<INavigationService, NavigationService>();
 
+        // Registers main app shell and app classes
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddSingleton<App>();
 
+        // Registers dashboard page and ViewModel
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<MainPage>();
 
+        // Registers login page and ViewModel
         builder.Services.AddSingleton<LoginViewModel>();
         builder.Services.AddTransient<LoginPage>();
 
+        // Registers register page and ViewModel
         builder.Services.AddSingleton<RegisterViewModel>();
         builder.Services.AddTransient<RegisterPage>();
 
+        // Registers user management pages and ViewModels
         builder.Services.AddTransient<UserListViewModel>();
         builder.Services.AddTransient<UserListPage>();
 
@@ -94,9 +108,11 @@ public static class MauiProgram
         builder.Services.AddTransient<RentalListPage>();
 
 #if DEBUG
+        // Adds debug logging when running in Debug mode
         builder.Logging.AddDebug();
 #endif
 
+        // Builds and returns the finished MAUI app
         return builder.Build();
     }
 }

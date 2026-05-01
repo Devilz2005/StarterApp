@@ -4,12 +4,16 @@ using StarterApp.Services;
 
 namespace StarterApp.ViewModels;
 
+// ViewModel responsible for handling the Create Item page logic
 public partial class CreateItemViewModel : BaseViewModel
 {
+    // Service used to send item data to the API
     private readonly IItemService _itemService;
+
+    // Service used for navigation between pages
     private readonly INavigationService _navigationService;
 
-    // These are bound to the input fields in the UI
+    // These properties are linked (bound) to the input fields in the UI
     [ObservableProperty]
     private string title = string.Empty;
 
@@ -25,11 +29,13 @@ public partial class CreateItemViewModel : BaseViewModel
     [ObservableProperty]
     private string location = string.Empty;
 
+    // Default constructor (used in some cases like design-time or fallback)
     public CreateItemViewModel()
     {
         Title = "Create Item";
     }
 
+    // Main constructor with dependency injection
     public CreateItemViewModel(IItemService itemService, INavigationService navigationService)
     {
         _itemService = itemService;
@@ -37,13 +43,15 @@ public partial class CreateItemViewModel : BaseViewModel
         Title = "Create Item";
     }
 
+    // Command triggered when the user presses the "Create" button
     [RelayCommand]
     private async Task CreateItemAsync()
     {
+        // Prevent multiple requests at the same time
         if (IsBusy)
             return;
 
-        // Make sure user filled everything in
+        // Check if any required field is empty
         if (string.IsNullOrWhiteSpace(Title) ||
             string.IsNullOrWhiteSpace(Description) ||
             string.IsNullOrWhiteSpace(DailyRate) ||
@@ -54,14 +62,15 @@ public partial class CreateItemViewModel : BaseViewModel
             return;
         }
 
-        // Convert the DailyRate (string from UI) into a decimal
+        // Convert the DailyRate from string to decimal
         if (!decimal.TryParse(DailyRate, out var parsedRate) || parsedRate <= 0)
         {
             SetError("Enter a valid daily rate.");
             return;
         }
 
-        // Convert location text → coordinates (because API requires lat/long)
+        // Convert the location text into latitude and longitude coordinates
+        // The API requires coordinates instead of plain text
         (double latitude, double longitude) = Location.Trim().ToLower() switch
         {
             "edinburgh" => (55.9533, -3.1883),
@@ -69,7 +78,7 @@ public partial class CreateItemViewModel : BaseViewModel
             "aberdeen" => (57.1497, -2.0943),
             "dundee" => (56.4620, -2.9707),
 
-            // fallback so it doesn't crash if user types something random
+            // Default fallback location to prevent errors
             _ => (55.9533, -3.1883)
         };
 
@@ -78,55 +87,57 @@ public partial class CreateItemViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            // Build the object that matches what the API expects
+            // Create the request object that matches the API format
             var request = new CreateItemRequest
             {
                 Title = Title,
                 Description = Description,
                 DailyRate = parsedRate,
 
-                // TEMP: hardcoded until we add real category selection
+                // fixed category ID
                 CategoryId = 1,
 
                 Latitude = latitude,
                 Longitude = longitude
             };
 
-            // Send request to API
+            // Send the request to the API
             var result = await _itemService.CreateItemAsync(request);
 
             if (result.IsSuccess)
             {
-                // Show success popup
+                // Show a success message to the user
                 await Application.Current.MainPage.DisplayAlert(
                     "Success",
                     "Item created successfully.",
                     "OK");
 
-                // Go back to item list page
+                // Navigate back to the previous page (item list)
                 await _navigationService.NavigateBackAsync();
             }
             else
             {
-                // Show API error message
+                // Show any error returned by the API
                 SetError(result.Message);
             }
         }
         catch (Exception ex)
         {
-            // Catch any unexpected crashes
+            // Handle unexpected errors
             SetError($"Failed to create item: {ex.Message}");
         }
         finally
         {
+            // Reset loading state
             IsBusy = false;
         }
     }
 
+    // Command triggered when the user presses the "Cancel" button
     [RelayCommand]
     private async Task CancelAsync()
     {
-        // Just go back without doing anything
+        // Simply navigate back without saving anything
         await _navigationService.NavigateBackAsync();
     }
 }

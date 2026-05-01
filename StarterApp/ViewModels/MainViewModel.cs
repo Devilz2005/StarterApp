@@ -1,7 +1,4 @@
-/// @file MainViewModel.cs
-/// @brief Main dashboard view model for authenticated users
-/// @author StarterApp Development Team
-/// @date 2025
+// Main dashboard view model for authenticated users
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,44 +7,36 @@ using StarterApp.Services;
 
 namespace StarterApp.ViewModels;
 
-/// @brief View model for the main dashboard page
-/// @details Manages the main dashboard display, user information, and navigation to other sections
-/// @extends BaseViewModel
+// ViewModel for the main dashboard page
+// Manages dashboard display, user information, and navigation to other sections
 public partial class MainViewModel : BaseViewModel
 {
-    /// @brief Authentication service for managing user authentication
+    // Authentication service used to access the logged-in user and handle logout
     private readonly IAuthenticationService _authService;
     
-    /// @brief Navigation service for managing page navigation
+    // Navigation service used to move between pages
     private readonly INavigationService _navigationService;
 
-    /// @brief The currently authenticated user
-    /// @details Observable property containing the current user's information
+    // The currently authenticated user
     [ObservableProperty]
     private User? currentUser;
 
-    /// @brief Welcome message displayed to the user
-    /// @details Observable property showing a personalized welcome message
+    // Welcome message displayed on the dashboard
     [ObservableProperty]
     private string welcomeMessage = string.Empty;
 
-    /// @brief Indicates whether the current user has admin privileges
-    /// @details Observable property used to control visibility of admin features
+    // Controls whether admin-only features are visible
     [ObservableProperty]
     private bool isAdmin;
 
-    /// @brief Default constructor for design-time support
-    /// @details Sets the title to "Dashboard"
+    // Default constructor for design-time support
     public MainViewModel()
     {
         // Default constructor for design time support
         Title = "Dashboard";
     }
     
-    /// @brief Initializes a new instance of the MainViewModel class
-    /// @param authService The authentication service instance
-    /// @param navigationService The navigation service instance
-    /// @details Sets up the required services, initializes the title, and loads user data
+    // Main constructor with dependency injection
     public MainViewModel(IAuthenticationService authService, INavigationService navigationService)
     {
         _authService = authService;
@@ -57,8 +46,7 @@ public partial class MainViewModel : BaseViewModel
         LoadUserData();
     }
 
-    /// @brief Loads the current user's data and sets up the dashboard
-    /// @details Retrieves current user information and determines admin status
+    // Loads the current user's data and sets up the dashboard
     private void LoadUserData()
     {
         CurrentUser = _authService.CurrentUser;
@@ -70,12 +58,11 @@ public partial class MainViewModel : BaseViewModel
         }
     }
 
-    /// @brief Logs out the current user
-    /// @details Relay command that confirms logout and performs the logout operation
-    /// @return A task representing the asynchronous logout operation
+    // Command triggered when the user logs out
     [RelayCommand]
     private async Task LogoutAsync()
     {
+        // Ask the user to confirm before logging out
         var result = await Application.Current.MainPage.DisplayAlert(
             "Logout", 
             "Are you sure you want to logout?", 
@@ -89,39 +76,32 @@ public partial class MainViewModel : BaseViewModel
         }
     }
 
-    /// @brief Navigates to the user profile page
-    /// @details Relay command that navigates to the profile management page
-    /// @return A task representing the asynchronous navigation operation
+    // Navigates to the user profile page
     [RelayCommand]
     private async Task NavigateToProfileAsync()
     {
         await _navigationService.NavigateToAsync("TempPage");
     }
 
-    /// @brief Navigates to the settings page
-    /// @details Relay command that navigates to the application settings page
-    /// @return A task representing the asynchronous navigation operation
+    // Navigates to the settings page
     [RelayCommand]
     private async Task NavigateToSettingsAsync()
     {
         await _navigationService.NavigateToAsync("TempPage");
     }
 
-    /// @brief Navigates to the item list page
-    /// @details Relay command that navigates to the main item management page
-    /// @return A task representing the asynchronous navigation operation
+    // Navigates to the item list page
     [RelayCommand]
     private async Task NavigateToItemsAsync()
     {
         await _navigationService.NavigateToAsync("ItemListPage");
     }
 
-    /// @brief Navigates to the user list page
-    /// @details Relay command that navigates to the user management page, admin only
-    /// @return A task representing the asynchronous navigation operation
+    // Navigates to the user list page
     [RelayCommand]
     private async Task NavigateToUserListAsync()
     {
+        // Only admin users are allowed to access user management
         if (!IsAdmin)
         {
             await Application.Current.MainPage.DisplayAlert("Access Denied", "You don't have permission to access admin features.", "OK");
@@ -131,9 +111,7 @@ public partial class MainViewModel : BaseViewModel
         await _navigationService.NavigateToAsync("UserListPage");
     }
 
-    /// @brief Refreshes the dashboard data
-    /// @details Relay command that reloads user data and simulates a refresh operation
-    /// @return A task representing the asynchronous refresh operation
+    // Refreshes the dashboard data
     [RelayCommand]
     private async Task RefreshDataAsync()
     {

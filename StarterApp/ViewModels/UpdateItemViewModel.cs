@@ -4,10 +4,14 @@ using StarterApp.Services;
 
 namespace StarterApp.ViewModels;
 
+// ViewModel responsible for loading and updating an existing item
 [QueryProperty(nameof(ItemId), "itemId")]
 public partial class UpdateItemViewModel : BaseViewModel
 {
+    // Service used to get and update item data through the API
     private readonly IItemService _itemService;
+
+    // Service used to move between pages
     private readonly INavigationService _navigationService;
 
     // The item ID passed in through navigation
@@ -30,11 +34,13 @@ public partial class UpdateItemViewModel : BaseViewModel
     [ObservableProperty]
     private string location = string.Empty;
 
+    // Default constructor
     public UpdateItemViewModel()
     {
         Title = "Update Item";
     }
 
+    // Main constructor with dependency injection
     public UpdateItemViewModel(IItemService itemService, INavigationService navigationService)
     {
         _itemService = itemService;
@@ -50,6 +56,7 @@ public partial class UpdateItemViewModel : BaseViewModel
 
     private async Task LoadItemAsync(int id)
     {
+        // Prevent multiple loads at the same time
         if (IsBusy)
             return;
 
@@ -58,6 +65,7 @@ public partial class UpdateItemViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
+            // Get the selected item from the API
             var item = await _itemService.GetItemByIdAsync(id);
 
             if (item == null)
@@ -66,6 +74,7 @@ public partial class UpdateItemViewModel : BaseViewModel
                 return;
             }
 
+            // Fill the form with the existing item details
             Title = item.Title;
             Description = item.Description;
             DailyRate = item.DailyRate.ToString();
@@ -78,13 +87,16 @@ public partial class UpdateItemViewModel : BaseViewModel
         }
         finally
         {
+            // Reset loading state
             IsBusy = false;
         }
     }
 
+    // Command triggered when the user presses the "Update" button
     [RelayCommand]
     private async Task UpdateItemAsync()
     {
+        // Prevent multiple update requests at the same time
         if (IsBusy)
             return;
 
@@ -106,7 +118,7 @@ public partial class UpdateItemViewModel : BaseViewModel
             return;
         }
 
-        // Convert location text → coordinates because API still expects lat/long
+        // Convert location text into coordinates because the API expects latitude and longitude
         (double latitude, double longitude) = Location.Trim().ToLower() switch
         {
             "edinburgh" => (55.9533, -3.1883),
@@ -121,48 +133,57 @@ public partial class UpdateItemViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
+            // Create the request object that matches the API format
             var request = new UpdateItemRequest
             {
                 Title = Title,
                 Description = Description,
                 DailyRate = parsedRate,
 
-                // TEMP: still hardcoded until category selection is added
+                // Temporary fixed category ID until category selection is added
                 CategoryId = 1,
 
                 Latitude = latitude,
                 Longitude = longitude
             };
 
+            // Send the updated item details to the API
             var result = await _itemService.UpdateItemAsync(ItemId, request);
 
             if (result.IsSuccess)
             {
+                // Show success message
                 await Application.Current.MainPage.DisplayAlert(
                     "Success",
                     "Item updated successfully.",
                     "OK");
 
+                // Navigate back to the previous page
                 await _navigationService.NavigateBackAsync();
             }
             else
             {
+                // Show any API error message
                 SetError(result.Message);
             }
         }
         catch (Exception ex)
         {
+            // Handle unexpected errors
             SetError($"Failed to update item: {ex.Message}");
         }
         finally
         {
+            // Reset loading state
             IsBusy = false;
         }
     }
 
+    // Command triggered when the user presses the "Cancel" button
     [RelayCommand]
     private async Task CancelAsync()
     {
+        // Navigate back without saving changes
         await _navigationService.NavigateBackAsync();
     }
 }

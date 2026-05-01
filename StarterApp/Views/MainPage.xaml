@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              Title="{Binding Title}">
 
+    <!-- Toolbar buttons shown at the top of the dashboard page -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Profile" 
                      Command="{Binding NavigateToProfileCommand}"
@@ -16,6 +17,7 @@
                      IconImageSource="logout.png" />
     </ContentPage.ToolbarItems>
 
+    <!-- Allows the user to pull down to refresh dashboard data -->
     <RefreshView IsRefreshing="{Binding IsBusy}" 
                  Command="{Binding RefreshDataCommand}">
         <ScrollView>
@@ -36,11 +38,14 @@
                         <RoundRectangle CornerRadius="12" />
                     </Border.StrokeShape>
                     <StackLayout VerticalOptions="Center">
+                        <!-- Shows the personalised welcome message from the ViewModel -->
                         <Label Text="{Binding WelcomeMessage}"
                                FontSize="24"
                                FontAttributes="Bold"
                                TextColor="White"
                                HorizontalOptions="Center" />
+
+                        <!-- Shows the logged-in user's email address -->
                         <Label Text="{Binding CurrentUser.Email}"
                                FontSize="14"
                                TextColor="White"
@@ -60,11 +65,14 @@
                         <RoundRectangle CornerRadius="8" />
                     </Border.StrokeShape>
                     <StackLayout Orientation="Horizontal">
+                        <!-- Displays any dashboard error message -->
                         <Label Text="{Binding ErrorMessage}"
                                TextColor="{AppThemeBinding Light=#D32F2F, Dark=#EF5350}"
                                FontSize="14"
                                VerticalOptions="Center"
                                HorizontalOptions="StartAndExpand" />
+
+                        <!-- Clears the current error message -->
                         <Button Text="×"
                                 Command="{Binding ClearErrorCommand}"
                                 BackgroundColor="Transparent"
@@ -95,6 +103,8 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
+
+                        <!-- Opens the item management page when the card is tapped -->
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding NavigateToItemsCommand}" />
                         </Border.GestureRecognizers>
@@ -128,6 +138,8 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
+
+                        <!-- Opens the profile page when the card is tapped -->
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding NavigateToProfileCommand}" />
                         </Border.GestureRecognizers>
@@ -161,6 +173,8 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
+
+                        <!-- Opens the settings page when the card is tapped -->
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}" />
                         </Border.GestureRecognizers>
@@ -195,6 +209,8 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="12" />
                         </Border.StrokeShape>
+
+                        <!-- Opens user management, only shown when IsAdmin is true -->
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding NavigateToUserListCommand}" />
                         </Border.GestureRecognizers>

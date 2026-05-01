@@ -3,8 +3,8 @@ using System.Text.Json;
 
 namespace StarterApp.Services;
 
-/// API-based implementation of IItemService.
-/// This class talks directly to the shared REST API using HttpClient.
+// API-based implementation of IItemService.
+// This class communicates with the shared REST API using HttpClient.
 public class ApiItemService : IItemService
 {
     private readonly HttpClient _httpClient;
@@ -23,28 +23,26 @@ public class ApiItemService : IItemService
 
     public async Task<List<ItemDto>> GetItemsAsync()
     {
-        // Send request manually so we can inspect failures
+        // Sends a GET request to retrieve all items
         var response = await _httpClient.GetAsync("items");
 
-        // If API fails, throw the raw response text so TempViewModel can show it
+        // If the API request fails, throw an exception with the error details
         if (!response.IsSuccessStatusCode)
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             throw new Exception($"GET /items failed ({(int)response.StatusCode}): {errorContent}");
         }
 
-        // IMPORTANT:
-        // The API does NOT return a raw List<ItemDto>
-        // It returns: { "items": [ ... ] }
-        // So we must deserialize into the wrapper class first
+        // The API returns an object that contains the item list
         var result = await response.Content.ReadFromJsonAsync<ItemListResponse>();
 
-        // If null, return empty list to avoid crashes
+        // If the result is null, return an empty list to prevent crashes
         return result?.Items ?? new List<ItemDto>();
     }
 
     public async Task<ItemDto?> GetItemByIdAsync(int id)
     {
+        // Sends a GET request to retrieve a single item by ID
         var response = await _httpClient.GetAsync($"items/{id}");
 
         if (!response.IsSuccessStatusCode)
@@ -53,7 +51,7 @@ public class ApiItemService : IItemService
             throw new Exception($"GET /items/{id} failed ({(int)response.StatusCode}): {errorContent}");
         }
 
-        // This one works normally because API returns a single object
+        // This endpoint returns a single item object
         return await response.Content.ReadFromJsonAsync<ItemDto>();
     }
 
@@ -61,7 +59,7 @@ public class ApiItemService : IItemService
     {
         try
         {
-            // Sends POST request with JSON body to create a new item
+            // Sends a POST request with item data to create a new item
             var response = await _httpClient.PostAsJsonAsync("items", request);
 
             if (!response.IsSuccessStatusCode)
@@ -74,6 +72,7 @@ public class ApiItemService : IItemService
         }
         catch (Exception ex)
         {
+            // Returns error information instead of throwing an exception
             return new ServiceResult(false, $"Create failed: {ex.Message}");
         }
     }
@@ -82,7 +81,7 @@ public class ApiItemService : IItemService
     {
         try
         {
-            // Sends PUT request to update an existing item
+            // Sends a PUT request to update an existing item
             var response = await _httpClient.PutAsJsonAsync($"items/{id}", request);
 
             if (!response.IsSuccessStatusCode)
@@ -95,6 +94,7 @@ public class ApiItemService : IItemService
         }
         catch (Exception ex)
         {
+            // Returns error information instead of throwing an exception
             return new ServiceResult(false, $"Update failed: {ex.Message}");
         }
     }
@@ -103,7 +103,7 @@ public class ApiItemService : IItemService
     {
         try
         {
-            // Temporary test dates so the API gets everything it requires
+            // Creates the rental request data required by the API
             var requestBody = new
             {
                 itemId = itemId,
@@ -111,6 +111,7 @@ public class ApiItemService : IItemService
                 endDate = DateTime.UtcNow.Date.AddDays(3).ToString("yyyy-MM-dd")
             };
 
+            // Sends the rental request to the API
             var response = await _httpClient.PostAsJsonAsync("rentals", requestBody);
 
             if (!response.IsSuccessStatusCode)
@@ -123,12 +124,14 @@ public class ApiItemService : IItemService
         }
         catch (Exception ex)
         {
+            // Returns error information instead of throwing an exception
             return new ServiceResult(false, $"Request failed: {ex.Message}");
         }
     }
 
     public async Task<List<RentalDto>> GetIncomingRentalsAsync()
     {
+        // Sends a request to get incoming rental requests
         var response = await _httpClient.GetAsync("rentals/incoming");
 
         if (!response.IsSuccessStatusCode)
@@ -137,11 +140,11 @@ public class ApiItemService : IItemService
             throw new Exception($"Incoming rentals failed: {error}");
         }
 
+        // Reads the raw JSON response
         var json = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
 
-        // The rentals endpoints return a wrapper object:
-        // { "rentals": [ ... ], "totalRentals": n }
+        // The API returns a wrapper object containing the rentals array
         if (doc.RootElement.TryGetProperty("rentals", out var rentalsElement))
         {
             return JsonSerializer.Deserialize<List<RentalDto>>(
@@ -149,11 +152,13 @@ public class ApiItemService : IItemService
                 _jsonOptions) ?? new List<RentalDto>();
         }
 
+        // Returns an empty list if no rentals are found
         return new List<RentalDto>();
     }
 
     public async Task<List<RentalDto>> GetOutgoingRentalsAsync()
     {
+        // Sends a request to get outgoing rental requests
         var response = await _httpClient.GetAsync("rentals/outgoing");
 
         if (!response.IsSuccessStatusCode)
@@ -162,11 +167,11 @@ public class ApiItemService : IItemService
             throw new Exception($"Outgoing rentals failed: {error}");
         }
 
+        // Reads the raw JSON response
         var json = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
 
-        // The rentals endpoints return a wrapper object:
-        // { "rentals": [ ... ], "totalRentals": n }
+        // The API returns a wrapper object containing the rentals array
         if (doc.RootElement.TryGetProperty("rentals", out var rentalsElement))
         {
             return JsonSerializer.Deserialize<List<RentalDto>>(
@@ -174,6 +179,7 @@ public class ApiItemService : IItemService
                 _jsonOptions) ?? new List<RentalDto>();
         }
 
+        // Returns an empty list if no rentals are found
         return new List<RentalDto>();
     }
 }

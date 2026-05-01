@@ -4,12 +4,18 @@ using StarterApp.Database.Models;
 
 namespace StarterApp.Services;
 
+// Handles authentication using the shared API instead of the local database.
 public class ApiAuthenticationService : IAuthenticationService
 {
     private readonly HttpClient _httpClient;
+
+    // Stores the logged-in user while the app is running.
     private User? _currentUser;
+
+    // Stores the current user's roles if the API provides any.
     private readonly List<string> _currentUserRoles = new();
 
+    // Lets the rest of the app know when the user logs in or logs out.
     public event EventHandler<bool>? AuthenticationStateChanged;
 
     public bool IsAuthenticated => _currentUser != null;
@@ -25,6 +31,7 @@ public class ApiAuthenticationService : IAuthenticationService
     {
         try
         {
+            // Sends the email and password to the API to request a login token.
             var response = await _httpClient.PostAsJsonAsync("auth/token", new { email, password });
 
             if (!response.IsSuccessStatusCode)
@@ -34,6 +41,7 @@ public class ApiAuthenticationService : IAuthenticationService
                 ApiErrorResponse? error = null;
                 try
                 {
+                    // Try to read the API's error message in a clean format.
                     error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
                 }
                 catch
@@ -45,6 +53,7 @@ public class ApiAuthenticationService : IAuthenticationService
                     error?.Message ?? rawError ?? "Login failed");
             }
 
+            // Read the token returned by the API.
             var token = await response.Content.ReadFromJsonAsync<TokenResponse>();
             if (token == null || string.IsNullOrWhiteSpace(token.Token))
             {
@@ -52,9 +61,11 @@ public class ApiAuthenticationService : IAuthenticationService
                 return new AuthenticationResult(false, $"Login failed: invalid token response: {rawToken}");
             }
 
+            // Save the token so future API requests are authenticated.
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token.Token);
 
+            // Load the logged-in user's profile after login succeeds.
             var meResponse = await _httpClient.GetAsync("users/me");
 
             if (!meResponse.IsSuccessStatusCode)
@@ -70,6 +81,7 @@ public class ApiAuthenticationService : IAuthenticationService
                 return new AuthenticationResult(false, $"Login failed: invalid profile response: {rawProfile}");
             }
 
+            // Convert the API profile into the app's User model.
             _currentUser = new User
             {
                 Id = profile.Id,
@@ -82,6 +94,7 @@ public class ApiAuthenticationService : IAuthenticationService
 
             _currentUserRoles.Clear();
 
+            // Notify the app that the user is now logged in.
             AuthenticationStateChanged?.Invoke(this, true);
             return new AuthenticationResult(true, "Login successful");
         }
@@ -95,6 +108,7 @@ public class ApiAuthenticationService : IAuthenticationService
     {
         try
         {
+            // Sends the new user's details to the API registration endpoint.
             var response = await _httpClient.PostAsJsonAsync("auth/register", new
             {
                 firstName,
@@ -110,6 +124,7 @@ public class ApiAuthenticationService : IAuthenticationService
                 ApiErrorResponse? error = null;
                 try
                 {
+                    // Try to read the API's validation/error message.
                     error = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
                 }
                 catch
@@ -131,9 +146,12 @@ public class ApiAuthenticationService : IAuthenticationService
 
     public Task LogoutAsync()
     {
+        // Clear the saved user, roles, and authentication token.
         _currentUser = null;
         _currentUserRoles.Clear();
         _httpClient.DefaultRequestHeaders.Authorization = null;
+
+        // Notify the app that the user is now logged out.
         AuthenticationStateChanged?.Invoke(this, false);
         return Task.CompletedTask;
     }
@@ -149,11 +167,14 @@ public class ApiAuthenticationService : IAuthenticationService
 
     public Task<bool> ChangePasswordAsync(string currentPassword, string newPassword)
     {
+        // Password changes are not implemented for the shared API version.
         return Task.FromResult(false);
     }
 
+    // Matches the token response returned by the login endpoint.
     private record TokenResponse(string Token, DateTime ExpiresAt, int UserId);
 
+    // Matches the profile response returned by users/me.
     private record UserProfileResponse(
         int Id,
         string Email,
@@ -161,5 +182,6 @@ public class ApiAuthenticationService : IAuthenticationService
         string LastName,
         DateTime CreatedAt);
 
+    // Matches the common API error response format.
     private record ApiErrorResponse(string Error, string Message);
 }

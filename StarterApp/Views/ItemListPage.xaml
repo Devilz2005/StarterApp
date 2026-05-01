@@ -4,46 +4,51 @@
              x:Class="StarterApp.Views.ItemListPage"
              Title="Items">
 
+    <!-- Grid is used so the list gets its own scrollable space -->
     <Grid Padding="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowSpacing="15">
 
-        <!-- Load button -->
+        <!-- Button that loads all items from the API -->
         <Button Grid.Row="0"
                 Text="Load Items"
                 Command="{Binding LoadItemsCommand}" />
 
-        <!-- Create Item button -->
+        <!-- Button that opens the create item form -->
         <Button Grid.Row="1"
                 Text="Create Item"
                 Command="{Binding NavigateToCreateItemCommand}" />
 
-        <!-- Rental requests button -->
+        <!-- Button that opens incoming/outgoing rental requests -->
         <Button Grid.Row="2"
                 Text="View Rental Requests"
                 Command="{Binding NavigateToRentalListCommand}" />
 
-        <!-- Loading message -->
+        <!-- Shows when items are currently loading -->
         <Label Grid.Row="3"
                Text="Loading..."
                IsVisible="{Binding IsLoading}" />
 
-        <!-- Error message -->
+        <!-- Shows any error message from the ViewModel -->
         <Label Grid.Row="4"
                Text="{Binding ErrorMessage}"
                TextColor="Red"
                IsVisible="{Binding ErrorMessage}" />
 
-        <!-- Scrollable item list -->
+        <!-- Displays the list of items returned from the API -->
         <CollectionView Grid.Row="5"
                         ItemsSource="{Binding Items}"
                         VerticalOptions="FillAndExpand"
                         SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
+
+                    <!-- Card layout for each item -->
                     <Frame Padding="12"
                            Margin="0,0,0,12"
                            BorderColor="LightGray"
                            CornerRadius="12"
                            HasShadow="False">
+
+                        <!-- Makes the whole item card tappable -->
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenItemDetailCommand}"
@@ -52,22 +57,27 @@
 
                         <VerticalStackLayout Spacing="6">
 
+                            <!-- Item title -->
                             <Label Text="{Binding Title}"
                                    FontAttributes="Bold"
                                    FontSize="20" />
 
+                            <!-- Short item description -->
                             <Label Text="{Binding Description}"
                                    FontSize="14"
                                    LineBreakMode="TailTruncation"
                                    MaxLines="2" />
 
+                            <!-- Daily rental price -->
                             <Label Text="{Binding DailyRate, StringFormat='£{0}/day'}"
                                    TextColor="Green"
                                    FontAttributes="Bold" />
 
+                            <!-- Item category -->
                             <Label Text="{Binding Category}"
                                    FontSize="13" />
 
+                            <!-- Item location -->
                             <Label Text="{Binding Location}"
                                    FontSize="13" />
 
