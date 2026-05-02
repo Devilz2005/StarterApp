@@ -12,7 +12,6 @@ jobs:
 build-and-test:
 runs-on: ubuntu-latest
 
-```
 steps:
   - name: Checkout code
     uses: actions/checkout@v3
@@ -30,4 +29,3 @@ steps:
 
   - name: Run tests
     run: dotnet test --no-build --verbosity normal
-```
