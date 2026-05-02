@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  test-only:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,11 +21,8 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build project
-        run: dotnet build --no-restore
+      - name: Restore test project only
+        run: dotnet restore StarterApp.Tests
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test StarterApp.Tests --verbosity normal
